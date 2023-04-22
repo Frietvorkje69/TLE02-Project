@@ -3,21 +3,22 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Importing Libraies that we installed using npm
-const express = require("express")
-const app = express()
-const bcrypt = require("bcrypt") // Importing bcrypt package
-const passport = require("passport")
-const initializePassport = require("./passportConfig")
-const flash = require("express-flash")
-const session = require("express-session")
+const express = require("express");
+const app = express();
+const bcrypt = require("bcrypt");
+const passport = require("passport");
+const initializePassport = require("./passportConfig");
+const flash = require("express-flash");
+const session = require("express-session");
 const path = require('path');
+const methodOverride = require('method-override');
 
 //EJS to Html formatting
 app.set('views', path.join(__dirname, 'views'));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
-
+//authenticatie torries
 initializePassport(
     passport,
     email => users.find(user => user.email === email),
@@ -32,14 +33,16 @@ app.use(express.urlencoded({extended: false}))
 app.use(flash())
 app.use(session({
     secret: process.env.SECRET_KEY,
-    resave: false, // We wont resave the session variable if nothing is changed
+    resave: false,
     saveUninitialized: false
 }))
+
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(methodOverride("_method"))
 
 
-// Configuring the register post functionality
+// Configuring the login post functionality
 app.post("/login", checkNotAuthenticated, passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/login",
@@ -80,14 +83,9 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 })
 // End Routes
 
-app.delete('/logout', (req, res) => {
-    req.logOut()
-    res.redirect('/login')
-  })
-
 app.delete("/logout", (req, res) => {
-    req.logout(req.user, err => {
-        if (err) return next(err)
+    req.logOut(req.user, err => {
+        if(err) return next(err)
         res.redirect("/")
     })
 })
