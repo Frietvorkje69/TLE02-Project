@@ -71,7 +71,7 @@ app.post("/register", checkNotAuthenticated, async (req, res) => {
 
 // Routes
 app.get('/', checkAuthenticated, (req, res) => {
-    res.render("index.html", {name: req.user.name})
+    res.render("account.html", {name: req.user.name})
 })
 
 app.get('/login', checkNotAuthenticated, (req, res) => {
